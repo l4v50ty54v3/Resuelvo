@@ -35,6 +35,21 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Parse Server SDK
+  parse_server_sdk_flutter: ^6.0.0
+
+  # State management
+  provider: ^6.1.2
+
+  # Local storage
+  shared_preferences: ^2.3.2
+
+  # HTTP client (compatible with Parse SDK)
+  http: ^0.13.6
+
+  # Date utilities
+  intl: ^0.19.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

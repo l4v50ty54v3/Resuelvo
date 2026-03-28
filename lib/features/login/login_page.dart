@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:resuelvo_flutter/core/resuelvo_colors.dart';
 import 'package:resuelvo_flutter/features/Home/home_page.dart';
+import 'package:resuelvo_flutter/features/Home/home_teacher_page.dart';
+import 'package:resuelvo_flutter/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _remember = false;
   Role _role = Role.student;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -23,16 +27,43 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
-    /*if (_formKey.currentState?.validate() ?? false) {
-      // Aquí iría la lógica de autenticación.
+  void _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      // Mostrar loading
+      setState(() => _isLoading = true);
+
+      // Intentar login con Parse Server
+      final user = await AuthService.login(_userController.text, _passwordController.text);
+
+      if (user != null) {
+        // Determinar el rol del usuario y navegar
+        final userRole = user.get<String>('role') ?? 'student';
+
+        if (!mounted) return;
+
+        if (userRole == 'teacher') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomeTeacherPage())
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomePage())
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Iniciando sesión...')),
+        SnackBar(content: Text('Error al iniciar sesión: ${e.toString()}')),
       );
-    }*/
-    Navigator.of (context).push(
-      MaterialPageRoute(builder: (context)=> HomePage())
-    );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -128,10 +159,19 @@ final Color primary = ResuelvoColors.primary;
                     ),
                     const SizedBox(height: 8),
                     ElevatedButton(
-                      onPressed: _submit,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Text('Entrar', style: TextStyle(fontSize: 16)),
+                      onPressed: _isLoading ? null : _submit,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text('Entrar', style: TextStyle(fontSize: 16)),
                       ),
                     ),
                     const SizedBox(height: 12),
