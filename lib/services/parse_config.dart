@@ -1,22 +1,22 @@
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class ParseConfig {
-  static const String applicationId = 'your-app-id'; // Reemplaza con tu App ID
-  static const String clientKey = 'your-client-key'; // Reemplaza con tu Client Key
-  static const String serverUrl = 'https://your-parse-server-url/parse'; // Reemplaza con tu URL del servidor
+  static const String applicationId = "X3CDilgdfLSuHy9RdZ9wvp8Z2Bn6ILBcxRvh1GdX";
+  static const String clientKey = "E3VWPCNZJc1RY8tPfdxNvBfe45fwU3nU3v6jmgYa"; // Reemplaza con tu Client Key
+  static const String serverUrl = "https://parseapi.back4app.com"; // Reemplaza con tu URL del servidor
 
   static Future<void> initialize() async {
     const appId = applicationId;
     const serverUrl = ParseConfig.serverUrl;
     const clientKey = ParseConfig.clientKey;
-    const liveQueryUrl = 'https://your-parse-server-url'; // Opcional para live queries
+    //const liveQueryUrl = 'https://your-parse-server-url'; // Opcional para live queries
     const debug = true; // Cambia a false en producción
 
     await Parse().initialize(
       appId,
       serverUrl,
       clientKey: clientKey,
-      liveQueryUrl: liveQueryUrl,
+      //liveQueryUrl: liveQueryUrl,
       debug: debug,
       // Opcional: configuración adicional
       // appName: 'Resuelvo',

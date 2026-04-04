@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:resuelvo_flutter/features/Home/detail_teacher_page.dart';
 import 'package:resuelvo_flutter/features/Home/widgets/detail_teacher.dart';
+import 'package:resuelvo_flutter/models/parse_teacher.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,58 +17,68 @@ class _HomePageState extends State<HomePage> {
 
   // sample data; in a real app this would come from a repository or API
   // in a real app this would come from a repository or API
-  final List<Map<String, String>> _teachers = [
-    {
-      'name': 'Carlos Canto',
-      'subject': 'Matemáticas',
-      'image': '',
-      'email': 'carlos.canto@ejemplo.com',
-      'rating': '4.8',
-      'hours': '120',
-      'students': '300',
-      'description': 'Profesor de Matemáticas con más de 10 años de experiencia. Especializado en álgebra y cálculo. Metodología dinámica y participativa que favorece el aprendizaje significativo.'
-    },
-    {
-      'name': 'Ana López',
-      'subject': 'Ciencias',
-      'image': '',
-      'email': 'ana.lopez@ejemplo.com',
-      'rating': '4.5',
-      'hours': '95',
-      'students': '220',
-      'description': 'Experta en Ciencias Naturales y Biología. Apasionada por incentivar el pensamiento científico en los estudiantes. Realiza experimentos interactivos y actividades prácticas.'
-    },
-    {
-      'name': 'Jorge Ramírez',
-      'subject': 'Lenguaje',
-      'image': '',
-      'email': 'jorge.ramirez@ejemplo.com',
-      'rating': '4.2',
-      'hours': '80',
-      'students': '150',
-      'description': 'Profesor de Lengua y Literatura con enfoque en comprensión lectora y expresión escrita. Promueve la lectura crítica y el análisis de textos.'
-    },
-    {
-      'name': 'María Pérez',
-      'subject': 'Historia',
-      'image': '',
-      'email': 'maria.perez@ejemplo.com',
-      'rating': '4.9',
-      'hours': '140',
-      'students': '340',
-      'description': 'Historiadora apasionada con especialidad en Historia Moderna y Contemporánea. Conecta el pasado con el presente de forma amena y educativa.'
-    },
-  ];
-
+  // final List<Map<String, String>> _teachers = [
+  //   {
+  //     'name': 'Carlos Canto',
+  //     'subject': 'Matemáticas',
+  //     'image': '',
+  //     'email': 'carlos.canto@ejemplo.com',
+  //     'rating': '4.8',
+  //     'hours': '120',
+  //     'students': '300',
+  //     'description': 'Profesor de Matemáticas con más de 10 años de experiencia. Especializado en álgebra y cálculo. Metodología dinámica y participativa que favorece el aprendizaje significativo.'
+  //   },
+  //   {
+  //     'name': 'Ana López',
+  //     'subject': 'Ciencias',
+  //     'image': '',
+  //     'email': 'ana.lopez@ejemplo.com',
+  //     'rating': '4.5',
+  //     'hours': '95',
+  //     'students': '220',
+  //     'description': 'Experta en Ciencias Naturales y Biología. Apasionada por incentivar el pensamiento científico en los estudiantes. Realiza experimentos interactivos y actividades prácticas.'
+  //   },
+  //   {
+  //     'name': 'Jorge Ramírez',
+  //     'subject': 'Lenguaje',
+  //     'image': '',
+  //     'email': 'jorge.ramirez@ejemplo.com',
+  //     'rating': '4.2',
+  //     'hours': '80',
+  //     'students': '150',
+  //     'description': 'Profesor de Lengua y Literatura con enfoque en comprensión lectora y expresión escrita. Promueve la lectura crítica y el análisis de textos.'
+  //   },
+  //   {
+  //     'name': 'María Pérez',
+  //     'subject': 'Historia',
+  //     'image': '',
+  //     'email': 'maria.perez@ejemplo.com',
+  //     'rating': '4.9',
+  //     'hours': '140',
+  //     'students': '340',
+  //     'description': 'Historiadora apasionada con especialidad en Historia Moderna y Contemporánea. Conecta el pasado con el presente de forma amena y educativa.'
+  //   },
+  // ];
+  List<ParseTeacher> _teachers = [];
+  bool _isLoading = true;
   List<String> get _categories => [
-        'Todos',
-        ..._teachers.map((t) => t['subject']!).toSet().toList()
-      ];
+    'Todos',
+    ..._teachers.map((t) => t.subject).toSet().toList(),
+  ];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadTeachers();
+  }
+
+  Future<void> _loadTeachers() async {
+    final teachers = await ParseTeacher.getAllTeachers();
+    setState(() {
+      _teachers = teachers;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -81,12 +92,22 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  List<Map<String, String>> get _filteredTeachers {
+  // List<Map<String, String>> get _filteredTeachers {
+  //   final query = _searchController.text.toLowerCase();
+  //   return _teachers.where((t) {
+  //     final matchesName = t['name']!.toLowerCase().contains(query);
+  //     final matchesSubject = t['subject']!.toLowerCase().contains(query);
+  //     final matchesCategory = _selectedCategory == 'Todos' || t['subject'] == _selectedCategory;
+  //     return (matchesName || matchesSubject) && matchesCategory;
+  //   }).toList();
+  //}
+  List<ParseTeacher> get _filteredTeachers {
     final query = _searchController.text.toLowerCase();
     return _teachers.where((t) {
-      final matchesName = t['name']!.toLowerCase().contains(query);
-      final matchesSubject = t['subject']!.toLowerCase().contains(query);
-      final matchesCategory = _selectedCategory == 'Todos' || t['subject'] == _selectedCategory;
+      final matchesName = t.user?.name.toLowerCase().contains(query) ?? false;
+      final matchesSubject = t.subject.toLowerCase().contains(query);
+      final matchesCategory =
+          _selectedCategory == 'Todos' || t.subject == _selectedCategory;
       return (matchesName || matchesSubject) && matchesCategory;
     }).toList();
   }
@@ -137,52 +158,42 @@ class _HomePageState extends State<HomePage> {
             ),
             const Divider(height: 20, thickness: 1),
             Expanded(
-              child: _filteredTeachers.isEmpty
-                  ? const Center(child: Text('No hay resultados'))
-                  : ListView.builder(
-                      itemCount: _filteredTeachers.length,
-                      itemBuilder: (context, index) {
-                        final t = _filteredTeachers[index];
-                        return DetailTeacherWidget(
-                          name: t['name']!,
-                          subject: t['subject']!,
-                          imageUrl: t['image']!.isEmpty ? null : t['image'],
-                          email: t['email'],
-                          rating: t['rating'] != null
-                              ? double.tryParse(t['rating']!)
-                              : null,
-                          hours: t['hours'] != null
-                              ? int.tryParse(t['hours']!)
-                              : null,
-                          students: t['students'] != null
-                              ? int.tryParse(t['students']!)
-                              : null,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailTeacherPage(
-                                  name: t['name']!,
-                                  subject: t['subject']!,
-                                  imageUrl: t['image']!.isEmpty ? null : t['image'],
-                                  email: t['email'],
-                                  description: t['description'],
-                                  rating: t['rating'] != null
-                                      ? double.tryParse(t['rating']!)
-                                      : null,
-                                  hours: t['hours'] != null
-                                      ? int.tryParse(t['hours']!)
-                                      : null,
-                                  students: t['students'] != null
-                                      ? int.tryParse(t['students']!)
-                                      : null,
+              child:
+                  _filteredTeachers.isEmpty
+                      ? const Center(child: Text('No hay resultados'))
+                      : ListView.builder(
+                        itemCount: _filteredTeachers.length,
+                        itemBuilder: (context, index) {
+                          final t = _filteredTeachers[index];
+                          return DetailTeacherWidget(
+                            name: t.user?.name ?? '',
+                            subject: t.subject,
+                            imageUrl: t.user?.profileImageUrl,
+                            // email: t['email'],
+                            rating: t.rating,
+                            hours: t.totalHours,
+                            students: t.totalStudents,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => DetailTeacherPage(
+                                        name: t.user?.name ?? '',
+                                        subject: t.subject,
+                                        imageUrl: t.user?.profileImageUrl,
+                                        // email: t['email'],
+                                        description: t.bio,
+                                        rating: t.rating,
+                                        hours: t.totalHours,
+                                        students: t.totalStudents,
+                                      ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                              );
+                            },
+                          );
+                        },
+                      ),
             ),
           ],
         ),
