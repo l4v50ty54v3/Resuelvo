@@ -4,11 +4,14 @@ import 'parse_user_model.dart';
 
 class ParseTeacher extends BaseModel {
   ParseTeacher() : super('Teacher');
+ParseTeacher.clone() : this();
 
-  ParseTeacher.clone() : this();
+@override
+  ParseTeacher clone(Map<String, dynamic> map) =>
+      ParseTeacher.clone()..fromJson(map);
 
   // Getters
-  ParseUserModel? get user => get<ParseUserModel>('user');
+  ParseUser? get user => get<ParseUser>('user');
   String get subject => get<String>('subject') ?? '';
   String? get bio => get<String>('bio');
   String? get specialization => get<String>('specialization');
@@ -19,7 +22,7 @@ class ParseTeacher extends BaseModel {
   List<String> get classIds => get<List<dynamic>>('classIds')?.cast<String>() ?? [];
 
   // Setters
-  set user(ParseUserModel? value) => set<ParseUserModel?>('user', value);
+  set user(ParseUser? value) => set<ParseUser?>('user', value);
   set subject(String value) => set<String>('subject', value);
   set bio(String? value) => set<String?>('bio', value);
   set specialization(String? value) => set<String?>('specialization', value);

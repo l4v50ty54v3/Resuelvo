@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:resuelvo_flutter/features/Home/detail_teacher_page.dart';
 import 'package:resuelvo_flutter/features/Home/widgets/detail_teacher.dart';
+import 'package:resuelvo_flutter/models/models.dart';
 import 'package:resuelvo_flutter/models/parse_teacher.dart';
 
 class HomePage extends StatefulWidget {

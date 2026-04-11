@@ -1,25 +1,17 @@
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'base_model.dart';
 
-enum ParseUserRole {
-  student,
-  teacher,
-  admin,
-}
+enum ParseUserRole { student, teacher, admin }
 
-class ParseUserModel extends BaseModel {
-  ParseUserModel() : super('User');
-
-  ParseUserModel.clone() : this();
-
+extension ParseUserModel on ParseUser {
   // Getters
   String get name => get<String>('name') ?? '';
   String get email => get<String>('email') ?? '';
   String? get phone => get<String>('phone');
   ParseUserRole get role => ParseUserRole.values.firstWhere(
-        (r) => r.name == get<String>('role'),
-        orElse: () => ParseUserRole.student,
-      );
+    (r) => r.name == get<String>('role'),
+    orElse: () => ParseUserRole.student,
+  );
   String? get profileImageUrl => get<String>('profileImageUrl');
 
   // Setters
@@ -30,23 +22,23 @@ class ParseUserModel extends BaseModel {
   set profileImageUrl(String? value) => set<String?>('profileImageUrl', value);
 
   // Factory methods
-  static Future<ParseUserModel?> getById(String id) async {
-    final query = QueryBuilder<ParseUserModel>(ParseUserModel())
+  static Future<ParseUser?> getById(String id) async {
+    final query = QueryBuilder<ParseUser>(ParseUser.forQuery())
       ..whereEqualTo('objectId', id);
 
     final response = await query.query();
     if (response.success && response.results != null) {
-      return response.results!.first as ParseUserModel;
+      return response.results!.first as ParseUser;
     }
     return null;
   }
 
-  static Future<List<ParseUserModel>> getAllUsers() async {
-    final query = QueryBuilder<ParseUserModel>(ParseUserModel());
+  static Future<List<ParseUser>> getAllUsers() async {
+    final query = QueryBuilder<ParseUser>(ParseUser.forQuery());
     final response = await query.query();
 
     if (response.success && response.results != null) {
-      return response.results!.cast<ParseUserModel>();
+      return response.results!.cast<ParseUser>();
     }
     return [];
   }
@@ -56,6 +48,14 @@ class ParseUserModel extends BaseModel {
     setTimestamps();
     final response = await save();
     return response.success;
+  }
+
+  void setTimestamps() {
+    final now = DateTime.now();
+    if (createdAt == null) {
+      set<DateTime>('createdAt', now);
+    }
+    set<DateTime>('updatedAt', now);
   }
 
   Future<bool> deleteUser() async {

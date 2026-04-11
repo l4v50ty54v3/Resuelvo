@@ -39,18 +39,22 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
 
         if (_teacher != null) {
           // Cargar clases del profesor
-          _classes = await ClassService.getClassesByTeacher(_teacher!.objectId!);
+          _classes = await ClassService.getClassesByTeacher(
+            _teacher!.objectId!,
+          );
 
           // Cargar solicitudes pendientes
-          _pendingRequests = await RequestService.getPendingRequests(_teacher!.objectId!);
+          _pendingRequests = await RequestService.getPendingRequests(
+            _teacher!.objectId!,
+          );
         }
       }
     } catch (e) {
       print('Error loading data: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al cargar datos: $e')));
       }
     } finally {
       if (mounted) {
@@ -66,18 +70,22 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Panel del Profesor', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Panel del Profesor',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: primary,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Panel del Profesor', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Panel del Profesor',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: primary,
         actions: [
           IconButton(
@@ -110,7 +118,9 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
               const SizedBox(height: 24),
 
               // Pending Requests Section
-              _buildSectionTitle('Solicitudes Pendientes (${_pendingRequests.length})'),
+              _buildSectionTitle(
+                'Solicitudes Pendientes (${_pendingRequests.length})',
+              ),
               _buildPendingRequestsList(_pendingRequests),
             ],
           ),
@@ -129,16 +139,24 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundImage: teacher.user?.profileImageUrl != null
-                  ? NetworkImage(teacher.user!.profileImageUrl!)
-                  : null,
+              backgroundImage:
+                  teacher.user?.get<String>("profileImageUrl") != null
+                      ? NetworkImage(
+                        teacher.user!.get<String>("profileImageUrl")!,
+                      )
+                      : null,
               backgroundColor: primary.withOpacity(0.1),
-              child: teacher.user?.profileImageUrl == null
-                  ? Text(
-                      teacher.user?.name[0].toUpperCase() ?? 'P',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    )
-                  : null,
+              child:
+                  teacher.user?.get<String>("profileImageUrl") == null
+                      ? Text(
+                        teacher.user?.get<String>("name")?[0].toUpperCase() ??
+                            'P',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                      : null,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -146,8 +164,11 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    teacher.user?.name ?? 'Profesor',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    teacher.user?.get<String>("name") ?? 'Profesor',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -156,7 +177,7 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    teacher.user?.email ?? '',
+                    teacher.user?.get<String>("email") ?? '',
                     style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
                   if (teacher.bio != null && teacher.bio!.isNotEmpty) ...[
@@ -189,9 +210,7 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: Center(
-            child: Text('No tienes clases asignadas'),
-          ),
+          child: Center(child: Text('No tienes clases asignadas')),
         ),
       );
     }
@@ -210,7 +229,9 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(classObj.schedule),
-                Text('${classObj.currentStudents}/${classObj.maxStudents} alumnos'),
+                Text(
+                  '${classObj.currentStudents}/${classObj.maxStudents} alumnos',
+                ),
               ],
             ),
             trailing: const Icon(Icons.arrow_forward_ios),
@@ -231,9 +252,7 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: Center(
-            child: Text('No tienes solicitudes pendientes'),
-          ),
+          child: Center(child: Text('No tienes solicitudes pendientes')),
         ),
       );
     }
@@ -252,7 +271,11 @@ class _HomeTeacherPageState extends State<HomeTeacherPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(request.description, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  request.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 Text(
                   'Tipo: ${request.type.name}',
                   style: const TextStyle(fontSize: 12),

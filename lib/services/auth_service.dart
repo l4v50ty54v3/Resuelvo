@@ -63,7 +63,7 @@ class AuthService {
     int yearsOfExperience = 0,
   }) async {
     final teacher = ParseTeacher()
-      ..user = ParseUserModel()..objectId = userId
+      ..user = ParseUser.forQuery()..objectId = userId
       ..subject = subject
       ..bio = bio
       ..specialization = specialization
@@ -84,7 +84,7 @@ class AuthService {
     String? school,
   }) async {
     final student = ParseStudent()
-      ..user = ParseUserModel()..objectId = userId
+      ..user = ParseUser.forQuery()..objectId = userId
       ..grade = grade
       ..school = school
       ..enrolledClassIds = []
@@ -97,7 +97,7 @@ class AuthService {
   // Obtener perfil de profesor por userId
   static Future<ParseTeacher?> getTeacherProfile(String userId) async {
     final query = QueryBuilder<ParseTeacher>(ParseTeacher())
-      ..whereEqualTo('user', ParseUserModel()..objectId = userId)
+      ..whereEqualTo('user', ParseUser.forQuery()..objectId = userId)
       ..includeObject(['user']);
 
     final response = await query.query();
@@ -110,7 +110,7 @@ class AuthService {
   // Obtener perfil de estudiante por userId
   static Future<ParseStudent?> getStudentProfile(String userId) async {
     final query = QueryBuilder<ParseStudent>(ParseStudent())
-      ..whereEqualTo('user', ParseUserModel()..objectId = userId)
+      ..whereEqualTo('user', ParseUser.forQuery()..objectId = userId)
       ..includeObject(['user']);
 
     final response = await query.query();

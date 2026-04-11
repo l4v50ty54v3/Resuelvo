@@ -8,14 +8,14 @@ class ParseStudent extends BaseModel {
   ParseStudent.clone() : this();
 
   // Getters
-  ParseUserModel? get user => get<ParseUserModel>('user');
+  ParseUser? get user => get<ParseUser>('user');
   String get grade => get<String>('grade') ?? '';
   String? get school => get<String>('school');
   List<String> get enrolledClassIds => get<List<dynamic>>('enrolledClassIds')?.cast<String>() ?? [];
   List<String> get completedClassIds => get<List<dynamic>>('completedClassIds')?.cast<String>() ?? [];
 
   // Setters
-  set user(ParseUserModel? value) => set<ParseUserModel?>('user', value);
+  set user(ParseUser? value) => set<ParseUser?>('user', value);
   set grade(String value) => set<String>('grade', value);
   set school(String? value) => set<String?>('school', value);
   set enrolledClassIds(List<String> value) => set<List<String>>('enrolledClassIds', value);
