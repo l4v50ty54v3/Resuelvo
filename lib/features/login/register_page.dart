@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -15,6 +17,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _dniController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -24,6 +29,8 @@ class _RegisterPageState extends State<RegisterPage> {
     _dniController.dispose();
     _cityController.dispose();
     _aboutController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -34,12 +41,54 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Aquí iría la lógica para enviar datos al backend o servicio.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrando usuario...')),
-      );
+      setState(() => _isLoading = true);
+      
+      try {
+        // Registrar usuario en Parse Server
+        final user = await AuthService.register(
+          username: _dniController.text, // Usar DNI como username
+          email: _emailController.text,
+          password: _passwordController.text,
+          role: 'student', // Por defecto student, puedes cambiar según necesites
+        );
+
+        if (user != null) {
+          // Guardar campos adicionales en Parse Server
+          user.set<String>('firstName', _firstNameController.text);
+          user.set<String>('lastName', _lastNameController.text);
+          user.set<String>('phone', _phoneController.text);
+          user.set<String>('username', _dniController.text);
+          user.set<String>('city', _cityController.text);
+          user.set<String>('about', _aboutController.text);
+          
+          final response = await user.save();
+          
+          if (response.success) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('¡Cuenta creada exitosamente!')),
+            );
+            // Navegar a la pantalla de inicio o login
+            Navigator.of(context).pop();
+          } else {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error al guardar datos: ${response.error?.message}')),
+            );
+          }
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -68,8 +117,29 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 12),
                 const Center(child: Text('Añadir foto de perfil', style: TextStyle(fontSize: 12))),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Correo electrónico', prefixIcon: Icon(Icons.email)),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Ingresa tu correo';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) return 'Correo inválido';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Contraseña', prefixIcon: Icon(Icons.lock)),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Ingresa una contraseña';
+                    if (v.length < 6) return 'Mínimo 6 caracteres';
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
-
                 TextFormField(
                   controller: _firstNameController,
                   decoration: const InputDecoration(labelText: 'Nombres', prefixIcon: Icon(Icons.person)),
@@ -106,7 +176,19 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 20),
-                ElevatedButton(onPressed: _submit, child: const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Text('Crear cuenta'))),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _submit,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Crear cuenta'),
+                  ),
+                ),
                 const SizedBox(height: 12),
               ],
             ),

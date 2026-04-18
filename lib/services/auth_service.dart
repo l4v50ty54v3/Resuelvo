@@ -18,12 +18,12 @@ class AuthService {
 
   // Registro de usuario
   static Future<ParseUser?> register({
-    required String name,
+    required String username,
     required String email,
     required String password,
     required String role,
   }) async {
-    final user = ParseUser(email, password, name)
+    final user = ParseUser(username, password, email)
       ..set('role', role);
 
     final response = await user.signUp();
